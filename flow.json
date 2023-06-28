@@ -1,1 +1,133 @@
-[]
+[
+    {
+        "id": "91b6129b5eb3ec52",
+        "type": "tab",
+        "label": "JavaScript helper chatbot",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5b9f8eb17f9561e6",
+        "type": "http in",
+        "z": "91b6129b5eb3ec52",
+        "name": "",
+        "url": "/createJavaScriptBot",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "c982f46f4d625aa6"
+            ]
+        ]
+    },
+    {
+        "id": "c982f46f4d625aa6",
+        "type": "function",
+        "z": "91b6129b5eb3ec52",
+        "name": "OpenAI API properties",
+        "func": "\n//const api_key = global.get('process_env').OPENAI_API\nconst api_key = msg.payload.key;\nconst content = msg.payload.text;\n\n// OpenAI API properties\nconst settings = {\n    model: \"text-davinci-003\",\n    prompt: content,\n    temperature: 0,\n    max_tokens: 150,\n    top_p: 1.0,\n    frequency_penalty: 0.5,\n    presence_penalty: 0.0,\n    stop: [\"You:\"]\n};\n\nif (api_key) {\n    msg.url = 'https://api.openai.com/v1/completions';\n    msg.headers = {\n        'Content-Type': 'application/json',\n        'Authorization': `Bearer ${api_key}`,\n    };\n    msg.payload = settings;\n    msg.settings = settings;\n    return [msg, null];\n} else {\n    msg.payload = settings;\n    msg.settings = settings;\n    return [null, msg];\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "7f92e3a500eeb8e0"
+            ],
+            [
+                "c431a5d11c885e5d"
+            ]
+        ]
+    },
+    {
+        "id": "7f92e3a500eeb8e0",
+        "type": "http request",
+        "z": "91b6129b5eb3ec52",
+        "name": "OpenAI API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "f25d8e709aeffe67"
+            ]
+        ]
+    },
+    {
+        "id": "f25d8e709aeffe67",
+        "type": "function",
+        "z": "91b6129b5eb3ec52",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\nif (!msg.payload.error) {\n    msg.payload = {\n        succsess: true,\n        text: msg.payload.choices[0].text,\n        settings: convertPayloadToObject(msg.settings)\n    }\n} else {\n    msg.payload = {\n        succsess: false,\n        payload: msg.payload.error.code\n    }\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 820,
+        "y": 100,
+        "wires": [
+            [
+                "2bce96cf991097d5"
+            ]
+        ]
+    },
+    {
+        "id": "2bce96cf991097d5",
+        "type": "http response",
+        "z": "91b6129b5eb3ec52",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 1010,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "c431a5d11c885e5d",
+        "type": "function",
+        "z": "91b6129b5eb3ec52",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\n\nmsg.payload = {\n    settings: convertPayloadToObject(msg.settings)\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 140,
+        "wires": [
+            [
+                "0738bed2dcc67524"
+            ]
+        ]
+    },
+    {
+        "id": "0738bed2dcc67524",
+        "type": "http response",
+        "z": "91b6129b5eb3ec52",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 780,
+        "y": 140,
+        "wires": []
+    }
+]
